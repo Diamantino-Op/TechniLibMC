@@ -1,0 +1,23 @@
+{
+  "name": "energyapi",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup"
+  },
+  "keywords": [
+    "minecraft",
+    "api",
+    "addon"
+  ],
+  "author": "Diamantino",
+  "license": "MIT",
+  "dependencies": {
+    "@minecraft/common": "^1.2.0",
+    "@minecraft/server": "^1.13.0",
+    "@minecraft/server-ui": "^1.2.0"
+  },
+  "description": "An energy API for minecraft."
+}
