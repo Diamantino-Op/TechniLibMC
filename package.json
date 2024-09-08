@@ -1,5 +1,5 @@
 {
-  "name": "energyapi",
+  "name": "technilibmc",
   "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -19,5 +19,5 @@
     "@minecraft/server": "^1.13.0",
     "@minecraft/server-ui": "^1.2.0"
   },
-  "description": "An energy API for minecraft."
+  "description": "An technic API for minecraft."
 }
