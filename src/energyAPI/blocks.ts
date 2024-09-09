@@ -1,5 +1,5 @@
 /**
- * @LICENSE MIT
+ * @LICENSE BSD-2-Clause
  * @AUTHORS Diamantino
  */
 
@@ -8,13 +8,21 @@ import {
   savedEnergyBlocksProperty,
   savedEnergyBlockProperty,
 } from "./constants";
-import { currentAddonId, IEnergyStorage } from "./energy";
+import {
+  currentAddonId,
+  EnergyPacket,
+  IEnergyStorage,
+  IVoltageEnergyStorage,
+  VoltageEnergyPacket,
+} from "./energy";
 import {
   NewEnergyBlockProps,
   NewVoltageEnergyBlockProps,
   JsonEnergyBlockData,
+  JsonVoltageEnergyBlockData,
 } from "./types";
 import { ClassMap } from "utils/classUtils";
+import { bigMin } from "utils/bigMath";
 
 /**
  * Contains a map of the registed energy blocks.
@@ -57,15 +65,28 @@ export class EnergyBlock {
       maxInsert: newEnergyBlockProps.maxInsert,
       canInsert: !(newEnergyBlockProps.maxInsert <= 0),
     };
+
+    this.loadEnergy(energyJsonData);
+    this.loadCustom(customJsonData);
   }
 
   public update() {}
 
-  public saveEnergy(): string {
-    return "";
+  public acceptEnergy(energypacket: EnergyPacket): bigint {
+    const actualTransfer: bigint = bigMin(energypacket.transferEnergy);
+
+    return 0n;
   }
 
-  public loadEnergy(jsonData: string) {}
+  public provideEnergy() {}
+
+  public saveEnergy(): string {
+    return JSON.stringify(this.energyStorage);
+  }
+
+  public loadEnergy(jsonData: string) {
+    this.energyStorage = JSON.parse(jsonData);
+  }
 
   public saveCustom(): string {
     return "";
@@ -78,8 +99,7 @@ export class EnergyBlock {
  * Class for energy machines that uses voltage.
  */
 export class VoltageEnergyBlock extends EnergyBlock {
-  voltage: bigint;
-  transferAmps: bigint;
+  voltageEnergyStorage: IVoltageEnergyStorage;
 
   constructor(
     typeId: string,
@@ -105,8 +125,35 @@ export class VoltageEnergyBlock extends EnergyBlock {
       customJsonData,
     );
 
-    this.voltage = newVoltageEnergyBlockProps.voltage;
-    this.transferAmps = newVoltageEnergyBlockProps.transferAmps;
+    this.voltageEnergyStorage = {
+      voltage: newVoltageEnergyBlockProps.voltage,
+      transferAmps: newVoltageEnergyBlockProps.transferAmps,
+    };
+  }
+
+  public override update() {
+    super.update();
+  }
+
+  public override acceptEnergy(energypacket: VoltageEnergyPacket): bigint {
+    return 0n;
+  }
+
+  public override provideEnergy() {}
+
+  public override saveEnergy(): string {
+    return JSON.stringify({
+      energyData: this.energyStorage,
+      voltageEnergyData: this.voltageEnergyStorage,
+    } as JsonVoltageEnergyBlockData);
+  }
+
+  public override loadEnergy(jsonData: string) {
+    const jsonVoltageEnergyData: JsonVoltageEnergyBlockData =
+      JSON.parse(jsonData);
+
+    this.energyStorage = jsonVoltageEnergyData.energyData;
+    this.voltageEnergyStorage = jsonVoltageEnergyData.voltageEnergyData;
   }
 }
 
@@ -242,9 +289,16 @@ export function loadEnergyBlocks() {
 }
 
 /**
+ * Init energy blocks.
+ */
+export function initBlocks() {
+  loadEnergyBlocks();
+}
+
+/**
  * Energy blocks update.
  */
-export function update() {
+export function updateBlocks() {
   placedEnergyBlocks.forEach((energyBlock, pos) => {
     if (energyBlock.isDirty) {
       savePlacedEnergyBlock(energyBlock, pos);

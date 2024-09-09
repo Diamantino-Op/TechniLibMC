@@ -13,11 +13,11 @@
     "addon"
   ],
   "author": "Diamantino",
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "@minecraft/common": "^1.2.0",
     "@minecraft/server": "^1.13.0",
     "@minecraft/server-ui": "^1.2.0"
   },
-  "description": "An technic API for minecraft."
+  "description": "An technic API for minecraft bedrock edition."
 }

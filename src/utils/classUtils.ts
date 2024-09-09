@@ -1,5 +1,5 @@
 /**
- * @LICENSE MIT
+ * @LICENSE BSD-2-Clause
  * @AUTHORS Diamantino
  */
 

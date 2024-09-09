@@ -1,7 +1,9 @@
 /**
- * @LICENSE MIT
+ * @LICENSE BSD-2-Clause
  * @AUTHORS Diamantino
  */
+
+import { IEnergyStorage, IVoltageEnergyStorage } from "./energy";
 
 /**
  * Properties used to create a new energy block.
@@ -32,4 +34,12 @@ export interface JsonEnergyBlockData {
   typeId: string;
   energyJsonData: string;
   customJsonData: string;
+}
+
+/**
+ * Json data for voltage energy blocks.
+ */
+export interface JsonVoltageEnergyBlockData {
+  energyData: IEnergyStorage;
+  voltageEnergyData: IVoltageEnergyStorage;
 }
