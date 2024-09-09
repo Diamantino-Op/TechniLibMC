@@ -34,6 +34,8 @@ export class EnergyBlock {
 
   typeId: string;
 
+  isDirty: boolean;
+
   constructor(
     typeId: string,
     newEnergyBlockProps: NewEnergyBlockProps,
@@ -41,6 +43,8 @@ export class EnergyBlock {
     customJsonData: string,
   ) {
     this.typeId = typeId;
+
+    this.isDirty = false;
 
     this.energyStorage = {
       storedEnergy:
@@ -54,6 +58,8 @@ export class EnergyBlock {
       canInsert: !(newEnergyBlockProps.maxInsert <= 0),
     };
   }
+
+  public update() {}
 
   public saveEnergy(): string {
     return "";
@@ -155,7 +161,7 @@ function placeNewEnergyBlock(
 /**
  * Saves all the placed energy blocks.
  */
-export function saveEnergyBlocks() {
+export function savePlacedEnergyBlocks() {
   const placedEnergyBlocksPos: Vector3[] = [];
 
   placedEnergyBlocks.forEach((energyBlock, pos) => {
@@ -180,7 +186,7 @@ export function saveEnergyBlocks() {
 /**
  * Saves all the placed energy blocks positions.
  */
-export function savePlacedEnergyBlocks() {
+export function savePlacedEnergyBlocksPositions() {
   const placedEnergyBlocksPos: Vector3[] = [];
 
   placedEnergyBlocks.forEach((_, pos) => placedEnergyBlocksPos.push(pos));
@@ -188,6 +194,23 @@ export function savePlacedEnergyBlocks() {
   world.setDynamicProperty(
     `${savedEnergyBlocksProperty}_${currentAddonId}`,
     JSON.stringify(placedEnergyBlocksPos),
+  );
+}
+
+/**
+ * Saves the specified placed energy block.
+ */
+export function savePlacedEnergyBlock(
+  energyBlock: EnergyBlock,
+  energyBlockPosition: Vector3,
+) {
+  world.setDynamicProperty(
+    `${savedEnergyBlockProperty}_${currentAddonId}_${energyBlockPosition.x}_${energyBlockPosition.y}_${energyBlockPosition.z}`,
+    JSON.stringify({
+      typeId: energyBlock.typeId,
+      energyJsonData: energyBlock.saveEnergy(),
+      customJsonData: energyBlock.saveCustom(),
+    } as JsonEnergyBlockData),
   );
 }
 
@@ -215,5 +238,18 @@ export function loadEnergyBlocks() {
     );
 
     placedEnergyBlocks.set(pos, newEnergyBlock);
+  });
+}
+
+/**
+ * Energy blocks update.
+ */
+export function update() {
+  placedEnergyBlocks.forEach((energyBlock, pos) => {
+    if (energyBlock.isDirty) {
+      savePlacedEnergyBlock(energyBlock, pos);
+
+      energyBlock.isDirty = false;
+    }
   });
 }
