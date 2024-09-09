@@ -19,5 +19,5 @@
     "@minecraft/server": "^1.13.0",
     "@minecraft/server-ui": "^1.2.0"
   },
-  "description": "An technic API for minecraft bedrock edition."
+  "description": "A technic API for minecraft bedrock edition."
 }

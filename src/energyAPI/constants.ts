@@ -6,7 +6,7 @@
 /**
  * Identifier for the energy system.
  */
-export const energyCableNetworkId: string = "diam:energy_network";
+export const energyNetworkId: string = "diam:energy_network";
 
 /**
  * Identifier for the saved energy blocks property.

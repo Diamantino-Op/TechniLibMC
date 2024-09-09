@@ -4,8 +4,8 @@
  */
 
 import { system } from "@minecraft/server";
-import { EnergyBlock } from "./blocks";
 import * as energyBlocks from "./blocks";
+import { energyNetworkId } from "./constants";
 
 /**
  * The ID of the addon that is using the energy API.

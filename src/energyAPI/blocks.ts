@@ -3,10 +3,11 @@
  * @AUTHORS Diamantino
  */
 
-import { Vector3, world } from "@minecraft/server";
+import { Vector3, world, system } from "@minecraft/server";
 import {
   savedEnergyBlocksProperty,
   savedEnergyBlockProperty,
+  energyNetworkId,
 } from "./constants";
 import {
   currentAddonId,
@@ -20,6 +21,7 @@ import {
   NewVoltageEnergyBlockProps,
   JsonEnergyBlockData,
   JsonVoltageEnergyBlockData,
+  RegisterEnergyBlockPacket,
 } from "./types";
 import { ClassMap } from "utils/classUtils";
 import { bigMin } from "utils/bigMath";
@@ -79,6 +81,8 @@ export class EnergyBlock {
   }
 
   public provideEnergy() {}
+
+  public provideEnergySE() {}
 
   public saveEnergy(): string {
     return JSON.stringify(this.energyStorage);
@@ -141,6 +145,8 @@ export class VoltageEnergyBlock extends EnergyBlock {
 
   public override provideEnergy() {}
 
+  public override provideEnergySE() {}
+
   public override saveEnergy(): string {
     return JSON.stringify({
       energyData: this.energyStorage,
@@ -177,14 +183,24 @@ export class VoltageCableNetwork extends CableNetwork {
  * Register a new energy block.
  */
 export function registerEnergyBlock(
+  addonId: string,
   typeId: string,
-  energyBlock: typeof EnergyBlock,
-  energyBlockSettings: NewEnergyBlockProps,
+  energyBlock?: typeof EnergyBlock,
+  energyBlockSettings?: NewEnergyBlockProps,
 ) {
   registeredEnergyBlocks[typeId] = {
     classType: energyBlock,
     settings: energyBlockSettings,
+    addonId: addonId,
   };
+
+  if (addonId == currentAddonId) {
+    world
+      .getDimension("overworld")
+      .runCommand(
+        `scriptevent ${energyNetworkId}_register_block ${JSON.stringify({ typeId: typeId, addonId: addonId } as RegisterEnergyBlockPacket)}`,
+      );
+  }
 }
 
 /**
@@ -292,6 +308,16 @@ export function loadEnergyBlocks() {
  * Init energy blocks.
  */
 export function initBlocks() {
+  system.afterEvents.scriptEventReceive.subscribe((data) => {
+    if (data.id == `${energyNetworkId}_register_block`) {
+      const decodedPacket: RegisterEnergyBlockPacket = JSON.parse(
+        data.message,
+      ) as RegisterEnergyBlockPacket;
+
+      registerEnergyBlock(decodedPacket.addonId, decodedPacket.typeId);
+    }
+  });
+
   loadEnergyBlocks();
 }
 

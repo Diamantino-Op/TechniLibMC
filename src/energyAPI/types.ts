@@ -43,3 +43,11 @@ export interface JsonVoltageEnergyBlockData {
   energyData: IEnergyStorage;
   voltageEnergyData: IVoltageEnergyStorage;
 }
+
+/**
+ * Packet that is sent via script event to register a machine.
+ */
+export interface RegisterEnergyBlockPacket {
+  typeId: string;
+  addonId: string;
+}
